@@ -80,7 +80,8 @@ const DiceDots = ({ value }) => {
   );
 };
 
-export default function BetTab({ isRollingUI, displayDice, playSoloBet }) {
+// 🚨 jackpotAmount ကို Props အနေနဲ့ ထပ်ဖြည့်ထားသည် 🚨
+export default function BetTab({ isRollingUI, displayDice, playSoloBet, jackpotAmount }) {
   const [selectedAmount, setSelectedAmount] = useState(1000);
   const [selectedType, setSelectedType] = useState(null); 
 
@@ -148,11 +149,13 @@ export default function BetTab({ isRollingUI, displayDice, playSoloBet }) {
         </div>
       </div>
 
-      {/* 🚨 Jackpot 🚨 */}
+      {/* 🚨 Jackpot: လှမ်းပို့လာတဲ့ Live ဂဏန်းကို အသေအချာ ပြပေးမည် 🚨 */}
       <div className="bg-gradient-to-r from-[#8B0000] via-[#FF0000] to-[#8B0000] border border-[#FFD700] rounded-xl py-1.5 px-4 text-center shadow-[0_0_15px_rgba(255,215,0,0.4)] animate-pulse relative overflow-hidden">
         <div className="absolute inset-0 bg-white/10 skew-x-12 translate-x-[-100%] animate-[shimmer_2s_infinite]"></div>
         <p className="text-[#FFD700] text-[9px] font-black tracking-widest mb-0.5 drop-shadow-md">🔥 巨额大奖 (JACKPOT) 🔥</p>
-        <p className="text-white text-2xl font-black font-mono tracking-wider drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">¥ 8,888,888</p>
+        <p className="text-white text-2xl font-black font-mono tracking-wider drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
+          ¥ {jackpotAmount ? jackpotAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '100,000.00'}
+        </p>
       </div>
 
       {/* 🚨 Dice Area - အန်စာတုံး လျှံမထွက်စေရန် ကွင်းကို (105px) သို့ ချဲ့ပေးထားသည် 🚨 */}

@@ -11,7 +11,8 @@ import ProfileTab from './components/ProfileTab';
 import Auth from './components/Auth'; 
 import Admin from '../Admin'; 
 
-const SOCKET_URL = 'https://roll-dice-production.up.railway.app'; 
+// 🚨 တရုတ် Backend လင့်ခ်အသစ် ပြောင်းထားပါသည် 🚨
+const SOCKET_URL = 'https://dice-cn-backend-production.up.railway.app'; 
 
 function MainGame() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -22,6 +23,9 @@ function MainGame() {
   const [balance, setBalance] = useState(0);
   const [displayDice, setDisplayDice] = useState({ d1: 1, d2: 1, total: 2 });
   const [isRollingUI, setIsRollingUI] = useState(false);
+  
+  // 🚨 Jackpot တန်ဖိုး သိမ်းရန် State အသစ် 🚨
+  const [jackpotAmount, setJackpotAmount] = useState(100000); 
   
   const isRollingRef = useRef(false);
   const rollAudioRef = useRef(null);
@@ -76,6 +80,11 @@ function MainGame() {
       
       newSocket.on('balanceUpdate', (newBalance) => {
         if (!isRollingRef.current) setBalance(newBalance);
+      });
+
+      // 🚨 Socket ကနေ Jackpot Update လာရင် ဂဏန်းပြောင်းပေးမည် 🚨
+      newSocket.on('jackpotUpdate', (amount) => {
+        setJackpotAmount(amount);
       });
       
       newSocket.on('errorMsg', (msg) => { setErrorToast(msg); setTimeout(() => setErrorToast(null), 3000); setIsRollingUI(false); isRollingRef.current = false; });
@@ -278,7 +287,8 @@ function MainGame() {
       </header>
 
       <main className="p-4 max-w-md mx-auto">
-        {activeTab === 'bet' && <BetTab isRollingUI={isRollingUI} displayDice={displayDice} playSoloBet={playSoloBet} />}
+        {/* 🚨 Jackpot Amount ကို BetTab ဆီ ပို့ပေးလိုက်ပါသည် 🚨 */}
+        {activeTab === 'bet' && <BetTab isRollingUI={isRollingUI} displayDice={displayDice} playSoloBet={playSoloBet} jackpotAmount={jackpotAmount} />}
         {activeTab === 'wallet' && <WalletTab balance={balance} userId={userPhone} handleDeposit={handleDeposit} handleWithdraw={handleWithdraw} />}
         
         {activeTab === 'history' && (
@@ -303,5 +313,4 @@ function MainGame() {
   );
 }
 
-function App() { return <Router><Routes><Route path="/" element={<MainGame />} /><Route path="/admin" element={<Admin />} /></Routes></Router>; }
 export default App;

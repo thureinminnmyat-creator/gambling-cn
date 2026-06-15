@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { LogOut, CheckCircle, XCircle, Users, Settings, Shield, Activity, CreditCard, Edit3, UserPlus, History, Trash2, ArrowDownCircle, ArrowUpCircle, BookOpen, Loader2 } from 'lucide-react';
 import { io } from 'socket.io-client'; 
 
-const API_URL = 'https://roll-dice-production.up.railway.app/api/admin';
+const API_URL = 'https://dice-cn-backend-production.up.railway.app/api/admin';
 
 export default function Admin() {
   const [isAdmin, setIsAdmin] = useState(false);

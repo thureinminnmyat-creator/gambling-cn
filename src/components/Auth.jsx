@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { UserCircle, KeyRound, Phone, AlertCircle } from 'lucide-react';
 
-const SOCKET_URL = 'https://roll-dice-production.up.railway.app'; // သင့် Railway URL
+const SOCKET_URL = 'https://dice-cn-backend-production.up.railway.app'; // သင့် Railway URL
 
 export default function Auth({ onLoginSuccess }) {
   const [isLogin, setIsLogin] = useState(true);

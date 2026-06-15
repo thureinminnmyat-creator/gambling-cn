@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Wallet, ArrowDownLeft, ArrowUpRight, Copy, ChevronLeft, CreditCard, User, Phone, ImagePlus, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const SOCKET_URL = 'https://roll-dice-production.up.railway.app';
+const SOCKET_URL = 'https://dice-cn-backend-production.up.railway.app';
 
 export default function WalletTab({ balance, userId, handleDeposit, handleWithdraw }) {
   const [activeAction, setActiveAction] = useState('menu');
