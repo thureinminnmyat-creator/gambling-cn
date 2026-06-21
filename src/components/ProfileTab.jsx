@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { UserCircle, Edit3, Save, KeyRound, LogOut, Send, ShieldAlert, Phone, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const SOCKET_URL = 'https://dice-cn-backend-production.up.railway.app'; 
+const SOCKET_URL = 'https://gambling-cn-backend-production.up.railway.app'; 
 
 export default function ProfileTab({ userId, userName, onLogout, onProfileUpdate, setErrorToast, setSuccessToast }) {
   // Edit Modes State

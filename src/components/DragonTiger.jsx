@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react'; // 🚨 useEffect ကို ထည့်သွင်းထားပါသည် 🚨
 import { Loader2 } from 'lucide-react';
 
 export default function DragonTiger({ balance, socket }) {
@@ -7,6 +7,24 @@ export default function DragonTiger({ balance, socket }) {
   const [isDealing, setIsDealing] = useState(false);
   const [cards, setCards] = useState({ dragon: null, tiger: null });
 
+  // 🚨 Socket ကနေ ရလဒ်ပြန်လာတာကို ဖမ်းမယ့်ကောင်ကို အသက်ပြန်သွင်းလိုက်ပါပြီ 🚨
+  useEffect(() => {
+    if(socket) {
+      const handleResult = (data) => {
+        // ဖဲချပ်အဖြေကို ပြမည်
+        setCards({ dragon: data.cards.dragonCard, tiger: data.cards.tigerCard });
+        
+        // Loading လည်နေတာကို ရပ်မည်
+        setIsDealing(false); 
+      };
+
+      socket.on('dragonTigerResult', handleResult);
+      
+      // Cleanup listener
+      return () => socket.off('dragonTigerResult', handleResult);
+    }
+  }, [socket]);
+
   const handleBet = () => {
     if (!selectedBet) return alert("လောင်းမည့်ဘက်ကို ရွေးချယ်ပါ!");
     if (balance < betAmount) return alert("လက်ကျန်ငွေ မလုံလောက်ပါ!");
@@ -14,24 +32,11 @@ export default function DragonTiger({ balance, socket }) {
     setIsDealing(true);
     setCards({ dragon: null, tiger: null });
     
-    // 🚨 တကယ့် Socket ချိတ်ရန် 🚨
+    // 🚨 တကယ့် Socket ဆီသို့ လှမ်းပို့ပါပြီ 🚨
     if (socket) {
       socket.emit('playDragonTiger', { type: selectedBet, amount: betAmount });
     }
   };
-
-  // 🚨 Socket ကနေ ရလဒ်ပြန်လာရင် ဖမ်းမယ့်နေရာ (လိုအပ်သလို ပြင်ပါ) 🚨
-  /*
-  useEffect(() => {
-    if(socket) {
-      socket.on('dragonTigerResult', (data) => {
-        setCards({ dragon: data.cards.dragonCard, tiger: data.cards.tigerCard });
-        setIsDealing(false);
-      });
-    }
-    return () => socket?.off('dragonTigerResult');
-  }, [socket]);
-  */
 
   const getCardDisplay = (card) => {
     if (!card) return <div className="w-16 h-24 border-2 border-dashed border-gray-600 rounded-xl flex items-center justify-center bg-gray-800/50">?</div>;
@@ -64,13 +69,13 @@ export default function DragonTiger({ balance, socket }) {
 
       {/* Betting Options */}
       <div className="grid grid-cols-3 gap-2">
-        <button onClick={() => setSelectedBet('dragon')} className={`p-4 rounded-2xl border-2 ${selectedBet === 'dragon' ? 'border-red-500 bg-red-950/80' : 'border-red-900/50 bg-red-950/30'}`}>
+        <button onClick={() => setSelectedBet('dragon')} className={`p-4 rounded-2xl border-2 transition-all ${selectedBet === 'dragon' ? 'border-red-500 bg-red-950/80 scale-105' : 'border-red-900/50 bg-red-950/30'}`}>
           <div className="flex flex-col items-center"><span className="text-red-500 font-black mb-1">နဂါး</span><span className="text-xs text-red-400">2.0x</span></div>
         </button>
-        <button onClick={() => setSelectedBet('tie')} className={`p-4 rounded-2xl border-2 ${selectedBet === 'tie' ? 'border-green-500 bg-green-950/80' : 'border-green-900/50 bg-green-950/30'}`}>
+        <button onClick={() => setSelectedBet('tie')} className={`p-4 rounded-2xl border-2 transition-all ${selectedBet === 'tie' ? 'border-green-500 bg-green-950/80 scale-105' : 'border-green-900/50 bg-green-950/30'}`}>
           <div className="flex flex-col items-center"><span className="text-green-500 font-black mb-1">သရေ</span><span className="text-xs text-green-400">9.0x</span></div>
         </button>
-        <button onClick={() => setSelectedBet('tiger')} className={`p-4 rounded-2xl border-2 ${selectedBet === 'tiger' ? 'border-blue-500 bg-blue-950/80' : 'border-blue-900/50 bg-blue-950/30'}`}>
+        <button onClick={() => setSelectedBet('tiger')} className={`p-4 rounded-2xl border-2 transition-all ${selectedBet === 'tiger' ? 'border-blue-500 bg-blue-950/80 scale-105' : 'border-blue-900/50 bg-blue-950/30'}`}>
           <div className="flex flex-col items-center"><span className="text-blue-500 font-black mb-1">ကျား</span><span className="text-xs text-blue-400">2.0x</span></div>
         </button>
       </div>

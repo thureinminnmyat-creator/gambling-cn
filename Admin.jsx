@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
-// 🚨 Loader2 ကို import ထဲမှာ ထည့်ထားပါတယ် 🚨
 import { LogOut, CheckCircle, XCircle, Users, Settings, Shield, Activity, CreditCard, Edit3, UserPlus, History, Trash2, ArrowDownCircle, ArrowUpCircle, BookOpen, Loader2 } from 'lucide-react';
 import { io } from 'socket.io-client'; 
 
-const API_URL = 'https://dice-cn-backend-production.up.railway.app/api/admin';
+const API_URL = 'https://gambling-cn-backend-production.up.railway.app';
 
 export default function Admin() {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -13,8 +12,6 @@ export default function Admin() {
   const [loading, setLoading] = useState(false);
   
   const [activeTab, setActiveTab] = useState('dashboard');
-  
-  // 🚨 Tab တိုင်းအတွက် Data ဆွဲနေချိန် Loading ပြရန် State အသစ် 🚨
   const [isFetchingData, setIsFetchingData] = useState(true);
 
   const [stats, setStats] = useState({ totalUsers: 0, pendingTxCount: 0, totalBets: 0, todayDeposit: 0, todayWithdraw: 0, weekDeposit: 0, weekWithdraw: 0 });
@@ -38,7 +35,7 @@ export default function Admin() {
     const token = localStorage.getItem('admin_token');
     const headers = { 'Authorization': `Bearer ${token}` };
 
-    setIsFetchingData(true); // 🚨 Data စဆွဲပြီ၊ Loading ပြမည် 🚨
+    setIsFetchingData(true); 
 
     try {
       if (activeTab === 'dashboard') {
@@ -62,7 +59,7 @@ export default function Admin() {
     } catch (e) { 
       console.error(e); 
     } finally {
-      setIsFetchingData(false); // 🚨 Data ဆွဲပြီးပြီ၊ Loading ဖျောက်မည် 🚨
+      setIsFetchingData(false); 
     }
   };
 
@@ -95,7 +92,8 @@ export default function Admin() {
 
   const handleEditBalance = async (phone, currentBalance) => {
     if (!phone) return alert("ဖုန်းနံပါတ်မရှိပါ");
-    const newBal = prompt(`ဖုန်း ${phone} ၏ လက်ရှိငွေ: ${currentBalance} Ks\nပြင်ဆင်လိုသော ငွေပမာဏ (ကော်မာမပါဘဲ ရိုက်ပါ):`, currentBalance);
+    // 🚨 Ks အစား ယွမ် သို့ ပြောင်းထားပါသည် 🚨
+    const newBal = prompt(`ဖုန်း ${phone} ၏ လက်ရှိငွေ: ${currentBalance} ယွမ်\nပြင်ဆင်လိုသော ငွေပမာဏ (ကော်မာမပါဘဲ ရိုက်ပါ):`, currentBalance);
     if (newBal !== null && newBal !== "") {
       const parsedBal = Number(newBal.replace(/,/g, '').trim());
       if (isNaN(parsedBal)) return alert("❌ ဂဏန်းမှားယွင်းနေပါသည်။ (ဥပမာ - 10000) ဟုသာ ရိုက်ပါ။");
@@ -108,6 +106,35 @@ export default function Admin() {
       });
       fetchAdminData(); 
       alert("Balance ပြင်ဆင်မှု အောင်မြင်ပါသည်");
+    }
+  };
+
+  // 🚨 Admin ကနေ User ရဲ့ Password ကို Reset ချပေးမည့် Function 🚨
+  const handleResetPassword = async (phone) => {
+    const newPassword = prompt(`ဖုန်းနံပါတ် ${phone} အတွက် Password အသစ်ကို ရိုက်ထည့်ပါ (အနည်းဆုံး ၆ လုံး):`);
+    
+    if (!newPassword) return; 
+    if (newPassword.length < 6) return alert("Password သည် အနည်းဆုံး ၆ လုံး ရှိရပါမည်!");
+
+    try {
+      const token = localStorage.getItem('admin_token'); 
+      const res = await fetch(`${API_URL}/users/reset-password`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        },
+        body: JSON.stringify({ phone: phone, newPassword: newPassword })
+      });
+      
+      const data = await res.json();
+      if (res.ok) {
+        alert(`✅ ${phone} ရဲ့ Password ကို အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ!`);
+      } else {
+        alert("❌ Error: " + data.error);
+      }
+    } catch (error) {
+      alert("❌ Server နှင့် ချိတ်ဆက်၍ မရပါ!");
     }
   };
 
@@ -149,7 +176,6 @@ export default function Admin() {
     );
   }
 
-  // 🚨 Reusable Loading Spinner Component 🚨
   const LoadingSpinner = () => (
     <div className="flex flex-col justify-center items-center h-64 w-full">
       <Loader2 className="w-12 h-12 text-yellow-500 animate-spin" />
@@ -192,19 +218,20 @@ export default function Admin() {
 
                 <h3 className="text-lg font-bold text-gray-400 mt-8 border-b border-gray-800 pb-2">TODAY'S FINANCE</h3>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-green-950/30 p-5 rounded-2xl border border-green-900/50"><div className="flex items-center gap-2 mb-2"><ArrowDownCircle className="w-5 h-5 text-green-500"/><p className="text-xs text-green-500/80 uppercase font-bold">Today Deposit</p></div><p className="text-xl md:text-2xl font-black text-green-400">+ {stats.todayDeposit?.toLocaleString() || 0} Ks</p></div>
-                  <div className="bg-red-950/30 p-5 rounded-2xl border border-red-900/50"><div className="flex items-center gap-2 mb-2"><ArrowUpCircle className="w-5 h-5 text-red-500"/><p className="text-xs text-red-500/80 uppercase font-bold">Today Withdraw</p></div><p className="text-xl md:text-2xl font-black text-red-400">- {stats.todayWithdraw?.toLocaleString() || 0} Ks</p></div>
+                  {/* 🚨 Ks အစား ယွမ် သို့ ပြောင်းထားပါသည် 🚨 */}
+                  <div className="bg-green-950/30 p-5 rounded-2xl border border-green-900/50"><div className="flex items-center gap-2 mb-2"><ArrowDownCircle className="w-5 h-5 text-green-500"/><p className="text-xs text-green-500/80 uppercase font-bold">Today Deposit</p></div><p className="text-xl md:text-2xl font-black text-green-400">+ {stats.todayDeposit?.toLocaleString() || 0} ယွမ်</p></div>
+                  <div className="bg-red-950/30 p-5 rounded-2xl border border-red-900/50"><div className="flex items-center gap-2 mb-2"><ArrowUpCircle className="w-5 h-5 text-red-500"/><p className="text-xs text-red-500/80 uppercase font-bold">Today Withdraw</p></div><p className="text-xl md:text-2xl font-black text-red-400">- {stats.todayWithdraw?.toLocaleString() || 0} ယွမ်</p></div>
                 </div>
 
                 <h3 className="text-lg font-bold text-gray-400 mt-8 border-b border-gray-800 pb-2">THIS WEEK'S FINANCE</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-blue-950/30 p-5 rounded-2xl border border-blue-900/50">
                     <div className="flex items-center gap-2 mb-2"><ArrowDownCircle className="w-5 h-5 text-blue-500"/><p className="text-xs text-blue-500/80 uppercase font-bold">Week Deposit</p></div>
-                    <p className="text-xl md:text-2xl font-black text-blue-400">+ {stats.weekDeposit?.toLocaleString() || 0} Ks</p>
+                    <p className="text-xl md:text-2xl font-black text-blue-400">+ {stats.weekDeposit?.toLocaleString() || 0} ယွမ်</p>
                   </div>
                   <div className="bg-orange-950/30 p-5 rounded-2xl border border-orange-900/50">
                     <div className="flex items-center gap-2 mb-2"><ArrowUpCircle className="w-5 h-5 text-orange-500"/><p className="text-xs text-orange-500/80 uppercase font-bold">Week Withdraw</p></div>
-                    <p className="text-xl md:text-2xl font-black text-orange-400">- {stats.weekWithdraw?.toLocaleString() || 0} Ks</p>
+                    <p className="text-xl md:text-2xl font-black text-orange-400">- {stats.weekWithdraw?.toLocaleString() || 0} ယွမ်</p>
                   </div>
                 </div>
               </>
@@ -223,7 +250,8 @@ export default function Admin() {
                     <div>
                       <span className={`text-[10px] uppercase font-black px-2.5 py-1 rounded-md mb-2 inline-block ${t.type === 'deposit' ? 'bg-green-900/40 text-green-400' : 'bg-red-900/40 text-red-400'}`}>{t.type}</span>
                       <p className="text-lg font-bold text-gray-200">{t.username ? `${t.username} (${t.phone})` : t.phone}</p>
-                      <p className="text-2xl font-black text-yellow-400">{t.amount?.toLocaleString()} Ks</p>
+                      {/* 🚨 Ks အစား ယွမ် သို့ ပြောင်းထားပါသည် 🚨 */}
+                      <p className="text-2xl font-black text-yellow-400">{t.amount?.toLocaleString()} ယွမ်</p>
                       {t.type === 'withdraw' && <div className="mt-2 text-sm text-gray-400 bg-black/40 p-3 rounded-lg"><p>To: <span className="text-white font-bold">{t.method?.toUpperCase()}</span> ({t.accountPhone})</p><p>Name: {t.accountName}</p></div>}
                     </div>
                     {t.screenshot && <div className="md:w-48"><img src={t.screenshot} alt="Receipt" className="w-full h-32 object-contain bg-black/50 rounded-lg border border-gray-700" /></div>}
@@ -255,7 +283,8 @@ export default function Admin() {
                         <td className="p-4"><p className="font-bold text-white">{t.phone}</p><p className="text-xs text-gray-500">{t.username || 'N/A'}</p></td>
                         <td className="p-4">
                           <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded mr-2 ${t.type === 'deposit' ? 'bg-green-900/30 text-green-400' : 'bg-red-900/30 text-red-400'}`}>{t.type}</span>
-                          <span className="font-black text-gray-200">{t.amount?.toLocaleString()} Ks</span>
+                          {/* 🚨 Ks အစား ယွမ် သို့ ပြောင်းထားပါသည် 🚨 */}
+                          <span className="font-black text-gray-200">{t.amount?.toLocaleString()} ယွမ်</span>
                         </td>
                         <td className="p-4 text-right">
                           <span className={`text-xs font-bold ${t.status === 'approved' ? 'text-green-500' : 'text-red-500'}`}>{t.status.toUpperCase()}</span>
@@ -284,11 +313,14 @@ export default function Admin() {
                           <p className="font-bold text-white">{u.phone || 'N/A'}</p>
                           <p className="text-xs text-gray-500">{u.username || 'No Name'}</p>
                         </td>
-                        <td className="p-4 font-black text-yellow-400">{u.balance?.toLocaleString()} Ks</td>
+                        {/* 🚨 Ks အစား ယွမ် သို့ ပြောင်းထားပါသည် 🚨 */}
+                        <td className="p-4 font-black text-yellow-400">{u.balance?.toLocaleString()} ယွမ်</td>
                         <td className="p-4 text-right">
-                          <div className="flex justify-end gap-2">
+                          <div className="flex justify-end gap-2 flex-wrap">
                             <button onClick={() => handleViewHistory(u.phone)} className="inline-flex items-center gap-1 bg-yellow-900/40 text-yellow-400 px-3 py-1.5 rounded-lg text-xs font-bold"><History className="w-3 h-3" /> Info</button>
                             <button onClick={() => handleEditBalance(u.phone, u.balance)} className="inline-flex items-center gap-1 bg-blue-900/40 text-blue-400 px-3 py-1.5 rounded-lg text-xs font-bold"><Edit3 className="w-3 h-3" /> Edit</button>
+                            {/* 🚨 Reset Password Button အသစ်ထည့်ထားပါသည် 🚨 */}
+                            <button onClick={() => handleResetPassword(u.phone)} className="inline-flex items-center gap-1 bg-purple-900/40 text-purple-400 px-3 py-1.5 rounded-lg text-xs font-bold"><Shield className="w-3 h-3" /> Reset Pwd</button>
                             <button onClick={() => handleDeleteUser(u._id, u.phone)} className="inline-flex items-center gap-1 bg-red-900/40 text-red-400 px-3 py-1.5 rounded-lg text-xs font-bold"><Trash2 className="w-3 h-3" /> Delete</button>
                           </div>
                         </td>
@@ -357,7 +389,6 @@ export default function Admin() {
               <button onClick={() => setShowHistoryModal(false)} className="text-red-500 hover:scale-110 transition-transform"><XCircle/></button>
             </div>
             <div className="p-4 overflow-y-auto flex-1 space-y-2">
-              {/* 🚨 Modal ထဲတွင်လည်း Spinner အစားထိုးထားပါသည် 🚨 */}
               {loadingHistory ? (
                 <div className="flex flex-col justify-center items-center py-10">
                   <Loader2 className="w-8 h-8 text-yellow-500 animate-spin" />
@@ -367,11 +398,12 @@ export default function Admin() {
                   <div key={idx} className="bg-black p-3 rounded-xl flex justify-between items-center border border-gray-800">
                     <div>
                       <p className="text-[10px] text-gray-500 mb-1">{new Date(bet.createdAt).toLocaleString()}</p>
-                      <p className="font-black uppercase text-sm text-gray-200">{bet.type === 'under' ? 'Under (အောက်)' : bet.type === 'over' ? 'Over (အထက်)' : 'Equal (ညီ)'}</p>
+                      <p className="font-black uppercase text-sm text-gray-200">{bet.type === 'under' ? 'Under (အောက်)' : bet.type === 'over' ? 'Over (အထက်)' : bet.type?.startsWith('DT_') ? bet.type.split('_')[1] : 'Equal (ညီ)'}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-bold text-gray-300">{bet.amount?.toLocaleString()} Ks</p>
-                      <p className={`text-xs font-black mt-1 ${bet.status === 'win' ? 'text-green-500' : 'text-red-500'}`}>{bet.status === 'win' ? `+ ${bet.amountWon?.toLocaleString()} Ks` : 'Lose'}</p>
+                      {/* 🚨 Ks အစား ယွမ် သို့ ပြောင်းထားပါသည် 🚨 */}
+                      <p className="text-sm font-bold text-gray-300">{bet.amount?.toLocaleString()} ယွမ်</p>
+                      <p className={`text-xs font-black mt-1 ${bet.status === 'win' ? 'text-green-500' : 'text-red-500'}`}>{bet.status === 'win' ? `+ ${bet.amountWon?.toLocaleString()} ယွမ်` : 'Lose'}</p>
                     </div>
                   </div>
                 ))

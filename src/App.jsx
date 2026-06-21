@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Coins, Wallet, History, UserCircle, Dices, AlertCircle, LogOut, CheckCircle, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// 🚨 BetTab အစား GameLobby ကို Import လုပ်ထားပါသည် 🚨
+// 🚨 BetTab အစား GameLobby ကို ခေါ်လိုက်ပါပြီ 🚨
 import GameLobby from './components/GameLobby'; 
 import WalletTab from './components/WalletTab';
 import HistoryTab from './components/HistoryTab';
@@ -12,10 +12,10 @@ import ProfileTab from './components/ProfileTab';
 import Auth from './components/Auth'; 
 import Admin from '../Admin'; 
 
-// 🚨 တရုတ် Backend လင့်ခ်အသစ် ပြောင်းထားပါသည် 🚨
-const SOCKET_URL = 'https://dice-cn-backend-production.up.railway.app'; 
+const SOCKET_URL = 'https://gambling-cn-backend-production.up.railway.app'; 
 
-function App() {
+// 🚨 App ကို MainGame လို့ နာမည်ပြောင်းလိုက်ပါပြီ (Router ဖြင့် လမ်းကြောင်းခွဲရန်) 🚨
+function MainGame() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userPhone, setUserPhone] = useState('');
   const [userName, setUserName] = useState('');
@@ -153,7 +153,6 @@ function App() {
   
   const playSoloBet = (type, amount) => { 
     if (socket && amount > 0 && balance >= amount) { 
-      
       try {
         const clickAudio = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-mouse-click-close-1113.mp3');
         clickAudio.play().catch(e => console.log(e));
@@ -185,11 +184,9 @@ function App() {
           
           setErrorToast("网络延迟，请检查连接。"); 
           setTimeout(() => setErrorToast(null), 3000);
-          
           fetchHistory(); 
         }
       }, 6000); 
-
     } else {
       setErrorToast("余额不足"); setTimeout(() => setErrorToast(null), 2000);
     }
@@ -235,7 +232,6 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#4A0404] via-[#2A0000] to-black text-white font-sans pb-20 select-none relative">
-      
       <AnimatePresence>
         {errorToast && (
           <motion.div initial={{ opacity: 0, y: -50 }} animate={{ opacity: 1, y: 20 }} exit={{ opacity: 0, y: -50 }} className="fixed top-0 left-1/2 -translate-x-1/2 z-[100] bg-[#8B0000] border-2 border-red-500 text-white px-4 py-3 rounded-2xl shadow-[0_0_15px_rgba(255,0,0,0.5)]">
@@ -275,7 +271,7 @@ function App() {
       </header>
 
       <main className="p-4 max-w-md mx-auto">
-        {/* 🚨 GameLobby ဆီသို့ လိုအပ်တဲ့ Props တွေအကုန် လှမ်းပို့ပေးလိုက်ပါသည် 🚨 */}
+        {/* 🚨 BetTab နေရာမှာ GameLobby ကို ပြောင်းထည့်ထားပြီး၊ ကျန်တဲ့ Tab တွေ အကုန် အရင်အတိုင်း ရှိပါတယ် 🚨 */}
         {activeTab === 'bet' && (
           <GameLobby 
             balance={balance} 
@@ -310,4 +306,14 @@ function App() {
   );
 }
 
-export default App;
+// 🚨 အောက်ဆုံးမှာ Admin Panel နဲ့ Game ကို လမ်းကြောင်းခွဲပေးမယ့် Router ကြီး ထည့်ပေးလိုက်ပါပြီ 🚨
+export default function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<MainGame />} />
+        <Route path="/admin" element={<Admin />} />
+      </Routes>
+    </Router>
+  );
+}
