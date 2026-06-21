@@ -4,7 +4,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Coins, Wallet, History, UserCircle, Dices, AlertCircle, LogOut, CheckCircle, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-import BetTab from './components/BetTab';
+// 🚨 BetTab အစား GameLobby ကို Import လုပ်ထားပါသည် 🚨
+import GameLobby from './components/GameLobby'; 
 import WalletTab from './components/WalletTab';
 import HistoryTab from './components/HistoryTab';
 import ProfileTab from './components/ProfileTab';
@@ -14,7 +15,7 @@ import Admin from '../Admin';
 // 🚨 တရုတ် Backend လင့်ခ်အသစ် ပြောင်းထားပါသည် 🚨
 const SOCKET_URL = 'https://dice-cn-backend-production.up.railway.app'; 
 
-function MainGame() {
+function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userPhone, setUserPhone] = useState('');
   const [userName, setUserName] = useState('');
@@ -24,7 +25,6 @@ function MainGame() {
   const [displayDice, setDisplayDice] = useState({ d1: 1, d2: 1, total: 2 });
   const [isRollingUI, setIsRollingUI] = useState(false);
   
-  // 🚨 Jackpot တန်ဖိုး သိမ်းရန် State အသစ် 🚨
   const [jackpotAmount, setJackpotAmount] = useState(100000); 
   
   const isRollingRef = useRef(false);
@@ -82,7 +82,6 @@ function MainGame() {
         if (!isRollingRef.current) setBalance(newBalance);
       });
 
-      // 🚨 Socket ကနေ Jackpot Update လာရင် ဂဏန်းပြောင်းပေးမည် 🚨
       newSocket.on('jackpotUpdate', (amount) => {
         setJackpotAmount(amount);
       });
@@ -92,11 +91,9 @@ function MainGame() {
       newSocket.on('txUpdate', (data) => {
         fetchHistory();
         if (data.status === 'approved') {
-          // 🇨🇳 တရုတ်စာ ပြောင်းထားသည် (အတည်ပြုသည်)
           setSuccessToast(`${data.type === 'deposit' ? '充值' : '提现'} 请求已批准`);
           setTimeout(() => setSuccessToast(null), 3000);
         } else if (data.status === 'rejected') {
-          // 🇨🇳 တရုတ်စာ ပြောင်းထားသည် (ပယ်ချသည်)
           setErrorToast(`${data.type === 'deposit' ? '充值' : '提现'} 请求被拒绝`);
           setTimeout(() => setErrorToast(null), 3000);
         }
@@ -125,7 +122,6 @@ function MainGame() {
             const loseAudio = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-losing-bleeps-2026.mp3');
             loseAudio.play().catch(e => console.log("Lose sound error:", e));
             
-            // 🇨🇳 တရုတ်စာ ပြောင်းထားသည် (ကြိုးစားပါဦး)
             setErrorToast("再接再厉 😢");
             setTimeout(() => setErrorToast(null), 1500); 
           }
@@ -187,7 +183,6 @@ function MainGame() {
             rollAudioRef.current = null;
           }
           
-          // 🇨🇳 တရုတ်စာ ပြောင်းထားသည် (အင်တာနက် ကြန့်ကြာသည်)
           setErrorToast("网络延迟，请检查连接。"); 
           setTimeout(() => setErrorToast(null), 3000);
           
@@ -196,7 +191,6 @@ function MainGame() {
       }, 6000); 
 
     } else {
-      // 🇨🇳 တရုတ်စာ ပြောင်းထားသည် (Balance မလောက်ပါ)
       setErrorToast("余额不足"); setTimeout(() => setErrorToast(null), 2000);
     }
   };
@@ -210,7 +204,6 @@ function MainGame() {
       });
       const data = await res.json();
       if (res.ok) {
-        // 🇨🇳 တရုတ်စာ ပြောင်းထားသည် (ငွေသွင်းအောင်မြင်သည်)
         setSuccessToast("充值请求成功");
         setTimeout(() => setSuccessToast(null), 3000);
         fetchHistory();
@@ -229,7 +222,6 @@ function MainGame() {
       });
       const data = await res.json();
       if (res.ok) {
-        // 🇨🇳 တရုတ်စာ ပြောင်းထားသည် (ငွေထုတ်အောင်မြင်သည်)
         setSuccessToast("提现请求成功");
         setTimeout(() => setSuccessToast(null), 3000);
         fetchHistory();
@@ -242,7 +234,6 @@ function MainGame() {
   if (!isLoggedIn) return <Auth onLoginSuccess={handleLoginSuccess} />;
 
   return (
-    // 🎨 UI တွင် အနီရင့်ရောင် (Deep Red/Maroon) နှင့် ရွှေရောင် (Gold) အပြင်အဆင်ကို သုံးထားသည်
     <div className="min-h-screen bg-gradient-to-b from-[#4A0404] via-[#2A0000] to-black text-white font-sans pb-20 select-none relative">
       
       <AnimatePresence>
@@ -270,15 +261,12 @@ function MainGame() {
             exit={{ opacity: 0, scale: 0.8, y: -20 }} 
             className="fixed top-[15%] left-1/2 -translate-x-1/2 z-[60] bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-[#4A0404] px-6 py-2 rounded-2xl font-black border-2 border-white shadow-[0_0_20px_rgba(255,215,0,0.6)] pointer-events-none"
           >
-            {/* 🇨🇳 ယွမ်သင်္ကေတ ပြောင်းထားသည် */}
             <span className="text-2xl drop-shadow-sm">+ ¥{winNotification.toLocaleString()}</span>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Header လေးကို တရုတ်ဆန်ဆန် ပြင်ထားသည် */}
       <header className="flex justify-between items-center p-4 border-b border-[#FFD700]/30 bg-[#2A0000]/60 shadow-md">
-        {/* 🇨🇳 "富贵骰子" (Wealth Dice) လို့ နာမည်ပေးထားပါတယ် */}
         <h1 className="text-2xl font-black text-[#FFD700] drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] tracking-wider">富貴</h1>
         <div className="flex items-center gap-2 bg-[#1A0000] px-4 py-1.5 rounded-full border border-[#FFD700]/60 shadow-[inset_0_0_8px_rgba(255,215,0,0.2)]">
           <Coins className="text-[#FFD700] w-5 h-5" />
@@ -287,8 +275,18 @@ function MainGame() {
       </header>
 
       <main className="p-4 max-w-md mx-auto">
-        {/* 🚨 Jackpot Amount ကို BetTab ဆီ ပို့ပေးလိုက်ပါသည် 🚨 */}
-        {activeTab === 'bet' && <BetTab isRollingUI={isRollingUI} displayDice={displayDice} playSoloBet={playSoloBet} jackpotAmount={jackpotAmount} />}
+        {/* 🚨 GameLobby ဆီသို့ လိုအပ်တဲ့ Props တွေအကုန် လှမ်းပို့ပေးလိုက်ပါသည် 🚨 */}
+        {activeTab === 'bet' && (
+          <GameLobby 
+            balance={balance} 
+            socket={socket} 
+            isRollingUI={isRollingUI} 
+            displayDice={displayDice} 
+            playSoloBet={playSoloBet} 
+            jackpotAmount={jackpotAmount} 
+          />
+        )}
+        
         {activeTab === 'wallet' && <WalletTab balance={balance} userId={userPhone} handleDeposit={handleDeposit} handleWithdraw={handleWithdraw} />}
         
         {activeTab === 'history' && (
@@ -302,7 +300,6 @@ function MainGame() {
         {activeTab === 'profile' && <ProfileTab userId={userPhone} userName={userName} onLogout={handleLogout} />}
       </main>
 
-      {/* အောက်ခြေ Navigation Bar အရောင်ပြင်ထားသည် */}
       <nav className="fixed bottom-0 w-full bg-[#2A0000] border-t border-[#FFD700]/20 flex justify-around items-center p-2 z-50 shadow-[0_-5px_15px_rgba(0,0,0,0.5)]">
         <button onClick={() => setActiveTab('bet')} className={`p-2 transition-all ${activeTab === 'bet' ? 'text-[#FFD700] scale-110 drop-shadow-[0_0_5px_rgba(255,215,0,0.5)]' : 'text-gray-500'}`}><Dices/></button>
         <button onClick={() => setActiveTab('wallet')} className={`p-2 transition-all ${activeTab === 'wallet' ? 'text-[#FFD700] scale-110 drop-shadow-[0_0_5px_rgba(255,215,0,0.5)]' : 'text-gray-500'}`}><Wallet/></button>
