@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { LogOut, CheckCircle, XCircle, Users, Settings, Shield, Activity, CreditCard, Edit3, UserPlus, History, Trash2, ArrowDownCircle, ArrowUpCircle, BookOpen, Loader2 } from 'lucide-react';
 import { io } from 'socket.io-client'; 
 
-const API_URL = 'https://gambling-cn-backend-production.up.railway.app';
+const BASE_URL = 'https://gambling-cn-backend-production.up.railway.app';
+const API_URL = `${BASE_URL}/api`;
 
 export default function Admin() {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -34,30 +35,30 @@ export default function Admin() {
   const fetchAdminData = async () => {
     const token = localStorage.getItem('admin_token');
     const headers = { 'Authorization': `Bearer ${token}` };
-
     setIsFetchingData(true); 
 
     try {
+      // 🚨 ပြဿနာကို ဖြေရှင်းထားသည် - Backend နှင့် ကိုက်ညီရန် /admin လမ်းကြောင်းများ ထည့်ပေးထားသည် 🚨
       if (activeTab === 'dashboard') {
-        const res = await fetch(`${API_URL}/dashboard`, { headers });
+        const res = await fetch(`${API_URL}/admin/dashboard`, { headers });
         if (res.ok) setStats(await res.json());
       } else if (activeTab === 'txs' || activeTab === 'history') {
-        const res = await fetch(`${API_URL}/transactions`, { headers });
+        const res = await fetch(`${API_URL}/admin/transactions`, { headers });
         const data = await res.json();
         setTxs(Array.isArray(data) ? data : []); 
       } else if (activeTab === 'users') {
-        const res = await fetch(`${API_URL}/users`, { headers });
+        const res = await fetch(`${API_URL}/admin/users`, { headers });
         const data = await res.json();
         setUsersList(Array.isArray(data) ? data : []);
       } else if (activeTab === 'settings') {
-        const res = await fetch(`https://roll-dice-production.up.railway.app/api/settings`); 
+        const res = await fetch(`${API_URL}/settings`); // Settings GET က Public ဖြစ်လို့ /admin မလိုပါ
         if (res.ok) setSysSettings(await res.json());
       } else if (activeTab === 'admins' && adminRole === 'superadmin') {
-        const res = await fetch(`${API_URL}/subadmins`, { headers });
+        const res = await fetch(`${API_URL}/admin/subadmins`, { headers });
         setSubAdmins(Array.isArray(await res.json()) ? await res.json() : []);
       }
     } catch (e) { 
-      console.error(e); 
+      console.error("Data Fetch Error:", e); 
     } finally {
       setIsFetchingData(false); 
     }
@@ -67,7 +68,7 @@ export default function Admin() {
 
   useEffect(() => {
     if (isAdmin) {
-      const socket = io('https://roll-dice-production.up.railway.app');
+      const socket = io(BASE_URL); 
       socket.on('newTransaction', () => { fetchAdminData(); });
       socket.on('userUpdate', () => { if (activeTab === 'users' || activeTab === 'dashboard') fetchAdminData(); });
       return () => socket.disconnect();
@@ -75,31 +76,47 @@ export default function Admin() {
   }, [isAdmin, activeTab]);
 
   const handleAdminLogin = async (e) => {
-    e.preventDefault(); setLoading(true);
+    e.preventDefault(); 
+    setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: usernameInput, password: passwordInput }) });
+      const res = await fetch(`${API_URL}/admin/login`, { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify({ username: usernameInput, password: passwordInput }) 
+      });
       const data = await res.json();
-      if (res.ok) { localStorage.setItem('admin_token', data.token); localStorage.setItem('admin_role', data.role); setAdminRole(data.role); setIsAdmin(true); } else { alert(data.error); }
-    } catch(e) { alert("Server Error"); } setLoading(false);
+      
+      if (res.ok) { 
+        localStorage.setItem('admin_token', data.token); 
+        localStorage.setItem('admin_role', data.role); 
+        setAdminRole(data.role); 
+        setIsAdmin(true); 
+      } else { 
+        alert(`Error: ${data.error || "Login Failed"}`); 
+      }
+    } catch(e) { 
+      console.error("Login Fetch Error:", e);
+      alert("Server Error! API လမ်းကြောင်းမှားယွင်းနေပါသည်။"); 
+    } 
+    setLoading(false);
   };
 
   const handleTxAction = async (id, action) => {
     if(!window.confirm(`ဒီလုပ်ဆောင်ချက်ကို ${action} လုပ်မှာ သေချာလား?`)) return;
     const token = localStorage.getItem('admin_token');
-    await fetch(`${API_URL}/transaction/action`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ transactionId: id, action }) });
+    await fetch(`${API_URL}/admin/transaction/action`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ transactionId: id, action }) });
     fetchAdminData();
   };
 
   const handleEditBalance = async (phone, currentBalance) => {
     if (!phone) return alert("ဖုန်းနံပါတ်မရှိပါ");
-    // 🚨 Ks အစား ယွမ် သို့ ပြောင်းထားပါသည် 🚨
     const newBal = prompt(`ဖုန်း ${phone} ၏ လက်ရှိငွေ: ${currentBalance} ယွမ်\nပြင်ဆင်လိုသော ငွေပမာဏ (ကော်မာမပါဘဲ ရိုက်ပါ):`, currentBalance);
     if (newBal !== null && newBal !== "") {
       const parsedBal = Number(newBal.replace(/,/g, '').trim());
-      if (isNaN(parsedBal)) return alert("❌ ဂဏန်းမှားယွင်းနေပါသည်။ (ဥပမာ - 10000) ဟုသာ ရိုက်ပါ။");
+      if (isNaN(parsedBal)) return alert("❌ ဂဏန်းမှားယွင်းနေပါသည်။");
 
       const token = localStorage.getItem('admin_token');
-      await fetch(`${API_URL}/users/update-balance`, { 
+      await fetch(`${API_URL}/admin/users/update-balance`, { 
         method: 'POST', 
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, 
         body: JSON.stringify({ phone, newBalance: parsedBal }) 
@@ -109,16 +126,14 @@ export default function Admin() {
     }
   };
 
-  // 🚨 Admin ကနေ User ရဲ့ Password ကို Reset ချပေးမည့် Function 🚨
   const handleResetPassword = async (phone) => {
     const newPassword = prompt(`ဖုန်းနံပါတ် ${phone} အတွက် Password အသစ်ကို ရိုက်ထည့်ပါ (အနည်းဆုံး ၆ လုံး):`);
-    
     if (!newPassword) return; 
     if (newPassword.length < 6) return alert("Password သည် အနည်းဆုံး ၆ လုံး ရှိရပါမည်!");
 
     try {
       const token = localStorage.getItem('admin_token'); 
-      const res = await fetch(`${API_URL}/users/reset-password`, {
+      const res = await fetch(`${API_URL}/admin/users/reset-password`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -128,11 +143,8 @@ export default function Admin() {
       });
       
       const data = await res.json();
-      if (res.ok) {
-        alert(`✅ ${phone} ရဲ့ Password ကို အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ!`);
-      } else {
-        alert("❌ Error: " + data.error);
-      }
+      if (res.ok) alert(`✅ ${phone} ရဲ့ Password ကို အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ!`);
+      else alert("❌ Error: " + data.error);
     } catch (error) {
       alert("❌ Server နှင့် ချိတ်ဆက်၍ မရပါ!");
     }
@@ -141,24 +153,24 @@ export default function Admin() {
   const handleDeleteUser = async (id, phone) => {
     if (!window.confirm(`ဖုန်း ${phone} အကောင့်ကို အပြီးတိုင် ဖျက်မှာ သေချာလား?`)) return;
     const token = localStorage.getItem('admin_token');
-    await fetch(`${API_URL}/users/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } }); fetchAdminData();
+    await fetch(`${API_URL}/admin/users/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } }); fetchAdminData();
   };
 
   const handleUpdateSettings = async (e) => {
     e?.preventDefault(); const token = localStorage.getItem('admin_token');
-    await fetch(`${API_URL}/settings`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify(sysSettings) });
+    await fetch(`${API_URL}/admin/settings`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify(sysSettings) });
     alert("Settings ပြင်ဆင်ပြီးပါပြီ"); fetchAdminData(); 
   };
 
   const handleCreateAdmin = async (e) => {
     e.preventDefault(); const token = localStorage.getItem('admin_token');
-    const res = await fetch(`${API_URL}/create-subadmin`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ username: e.target.newUsername.value, password: e.target.newPassword.value }) });
+    const res = await fetch(`${API_URL}/admin/create-subadmin`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ username: e.target.newUsername.value, password: e.target.newPassword.value }) });
     const data = await res.json(); if(res.ok) { alert(data.message); e.target.reset(); fetchAdminData(); } else alert(data.error);
   };
 
   const handleViewHistory = async (phone) => {
     setHistoryPhone(phone); setShowHistoryModal(true); setLoadingHistory(true);
-    try { const res = await fetch(`https://roll-dice-production.up.railway.app/api/history/bets/${phone}`); setHistoryData(await res.json() || []); } catch (e) { setHistoryData([]); }
+    try { const res = await fetch(`${API_URL}/history/bets/${phone}`); setHistoryData(await res.json() || []); } catch (e) { setHistoryData([]); }
     setLoadingHistory(false);
   };
 
@@ -218,7 +230,6 @@ export default function Admin() {
 
                 <h3 className="text-lg font-bold text-gray-400 mt-8 border-b border-gray-800 pb-2">TODAY'S FINANCE</h3>
                 <div className="grid grid-cols-2 gap-4">
-                  {/* 🚨 Ks အစား ယွမ် သို့ ပြောင်းထားပါသည် 🚨 */}
                   <div className="bg-green-950/30 p-5 rounded-2xl border border-green-900/50"><div className="flex items-center gap-2 mb-2"><ArrowDownCircle className="w-5 h-5 text-green-500"/><p className="text-xs text-green-500/80 uppercase font-bold">Today Deposit</p></div><p className="text-xl md:text-2xl font-black text-green-400">+ {stats.todayDeposit?.toLocaleString() || 0} ယွမ်</p></div>
                   <div className="bg-red-950/30 p-5 rounded-2xl border border-red-900/50"><div className="flex items-center gap-2 mb-2"><ArrowUpCircle className="w-5 h-5 text-red-500"/><p className="text-xs text-red-500/80 uppercase font-bold">Today Withdraw</p></div><p className="text-xl md:text-2xl font-black text-red-400">- {stats.todayWithdraw?.toLocaleString() || 0} ယွမ်</p></div>
                 </div>
@@ -250,7 +261,6 @@ export default function Admin() {
                     <div>
                       <span className={`text-[10px] uppercase font-black px-2.5 py-1 rounded-md mb-2 inline-block ${t.type === 'deposit' ? 'bg-green-900/40 text-green-400' : 'bg-red-900/40 text-red-400'}`}>{t.type}</span>
                       <p className="text-lg font-bold text-gray-200">{t.username ? `${t.username} (${t.phone})` : t.phone}</p>
-                      {/* 🚨 Ks အစား ယွမ် သို့ ပြောင်းထားပါသည် 🚨 */}
                       <p className="text-2xl font-black text-yellow-400">{t.amount?.toLocaleString()} ယွမ်</p>
                       {t.type === 'withdraw' && <div className="mt-2 text-sm text-gray-400 bg-black/40 p-3 rounded-lg"><p>To: <span className="text-white font-bold">{t.method?.toUpperCase()}</span> ({t.accountPhone})</p><p>Name: {t.accountName}</p></div>}
                     </div>
@@ -283,7 +293,6 @@ export default function Admin() {
                         <td className="p-4"><p className="font-bold text-white">{t.phone}</p><p className="text-xs text-gray-500">{t.username || 'N/A'}</p></td>
                         <td className="p-4">
                           <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded mr-2 ${t.type === 'deposit' ? 'bg-green-900/30 text-green-400' : 'bg-red-900/30 text-red-400'}`}>{t.type}</span>
-                          {/* 🚨 Ks အစား ယွမ် သို့ ပြောင်းထားပါသည် 🚨 */}
                           <span className="font-black text-gray-200">{t.amount?.toLocaleString()} ယွမ်</span>
                         </td>
                         <td className="p-4 text-right">
@@ -313,13 +322,11 @@ export default function Admin() {
                           <p className="font-bold text-white">{u.phone || 'N/A'}</p>
                           <p className="text-xs text-gray-500">{u.username || 'No Name'}</p>
                         </td>
-                        {/* 🚨 Ks အစား ယွမ် သို့ ပြောင်းထားပါသည် 🚨 */}
                         <td className="p-4 font-black text-yellow-400">{u.balance?.toLocaleString()} ယွမ်</td>
                         <td className="p-4 text-right">
                           <div className="flex justify-end gap-2 flex-wrap">
                             <button onClick={() => handleViewHistory(u.phone)} className="inline-flex items-center gap-1 bg-yellow-900/40 text-yellow-400 px-3 py-1.5 rounded-lg text-xs font-bold"><History className="w-3 h-3" /> Info</button>
                             <button onClick={() => handleEditBalance(u.phone, u.balance)} className="inline-flex items-center gap-1 bg-blue-900/40 text-blue-400 px-3 py-1.5 rounded-lg text-xs font-bold"><Edit3 className="w-3 h-3" /> Edit</button>
-                            {/* 🚨 Reset Password Button အသစ်ထည့်ထားပါသည် 🚨 */}
                             <button onClick={() => handleResetPassword(u.phone)} className="inline-flex items-center gap-1 bg-purple-900/40 text-purple-400 px-3 py-1.5 rounded-lg text-xs font-bold"><Shield className="w-3 h-3" /> Reset Pwd</button>
                             <button onClick={() => handleDeleteUser(u._id, u.phone)} className="inline-flex items-center gap-1 bg-red-900/40 text-red-400 px-3 py-1.5 rounded-lg text-xs font-bold"><Trash2 className="w-3 h-3" /> Delete</button>
                           </div>
@@ -401,7 +408,6 @@ export default function Admin() {
                       <p className="font-black uppercase text-sm text-gray-200">{bet.type === 'under' ? 'Under (အောက်)' : bet.type === 'over' ? 'Over (အထက်)' : bet.type?.startsWith('DT_') ? bet.type.split('_')[1] : 'Equal (ညီ)'}</p>
                     </div>
                     <div className="text-right">
-                      {/* 🚨 Ks အစား ယွမ် သို့ ပြောင်းထားပါသည် 🚨 */}
                       <p className="text-sm font-bold text-gray-300">{bet.amount?.toLocaleString()} ယွမ်</p>
                       <p className={`text-xs font-black mt-1 ${bet.status === 'win' ? 'text-green-500' : 'text-red-500'}`}>{bet.status === 'win' ? `+ ${bet.amountWon?.toLocaleString()} ယွမ်` : 'Lose'}</p>
                     </div>

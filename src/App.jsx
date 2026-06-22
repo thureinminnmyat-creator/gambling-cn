@@ -4,7 +4,6 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Coins, Wallet, History, UserCircle, Dices, AlertCircle, LogOut, CheckCircle, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// 🚨 BetTab အစား GameLobby ကို ခေါ်လိုက်ပါပြီ 🚨
 import GameLobby from './components/GameLobby'; 
 import WalletTab from './components/WalletTab';
 import HistoryTab from './components/HistoryTab';
@@ -14,7 +13,6 @@ import Admin from '../Admin';
 
 const SOCKET_URL = 'https://gambling-cn-backend-production.up.railway.app'; 
 
-// 🚨 App ကို MainGame လို့ နာမည်ပြောင်းလိုက်ပါပြီ (Router ဖြင့် လမ်းကြောင်းခွဲရန်) 🚨
 function MainGame() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userPhone, setUserPhone] = useState('');
@@ -54,6 +52,7 @@ function MainGame() {
     setIsFetchingHistory(true); 
     
     try {
+      // 🚨 /api/ လမ်းကြောင်းများကို အမှန်ပြန်လည် ပြင်ဆင်ထားပါသည် 🚨
       const resBets = await fetch(`${SOCKET_URL}/api/history/bets/${phoneToUse}?t=${Date.now()}`, { cache: 'no-store' });
       if (resBets.ok) setBetHistory(await resBets.json());
       
@@ -194,6 +193,7 @@ function MainGame() {
 
   const handleDeposit = async (payload) => {
     try {
+      // 🚨 /api/ ကို အမှန် ပြန်ထည့်ထားပါသည် 🚨
       const res = await fetch(`${SOCKET_URL}/api/deposit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -212,6 +212,7 @@ function MainGame() {
 
   const handleWithdraw = async (payload) => {
     try {
+      // 🚨 /api/ ကို အမှန် ပြန်ထည့်ထားပါသည် 🚨
       const res = await fetch(`${SOCKET_URL}/api/withdraw`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -271,7 +272,6 @@ function MainGame() {
       </header>
 
       <main className="p-4 max-w-md mx-auto">
-        {/* 🚨 BetTab နေရာမှာ GameLobby ကို ပြောင်းထည့်ထားပြီး၊ ကျန်တဲ့ Tab တွေ အကုန် အရင်အတိုင်း ရှိပါတယ် 🚨 */}
         {activeTab === 'bet' && (
           <GameLobby 
             balance={balance} 
@@ -306,7 +306,6 @@ function MainGame() {
   );
 }
 
-// 🚨 အောက်ဆုံးမှာ Admin Panel နဲ့ Game ကို လမ်းကြောင်းခွဲပေးမယ့် Router ကြီး ထည့်ပေးလိုက်ပါပြီ 🚨
 export default function App() {
   return (
     <Router>
