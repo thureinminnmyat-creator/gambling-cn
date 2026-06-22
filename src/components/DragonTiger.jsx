@@ -92,7 +92,7 @@ export default function DragonTiger({ balance, socket }) {
     <div className="flex flex-col h-full max-w-md mx-auto w-full p-2 space-y-2 justify-between">
       
       {/* 🚨 Table UI (Compact Size) 🚨 */}
-      <div className="relative flex-1 min-h-[140px] bg-gradient-to-b from-[#0a4b2a] to-[#042f18] border-4 border-[#FFD700] rounded-3xl p-2 shadow-lg overflow-hidden flex flex-col justify-end pb-4">
+      <div className="relative flex-1 min-h-[240px] bg-gradient-to-b from-[#0a4b2a] to-[#042f18] border-4 border-[#FFD700] rounded-3xl p-2 shadow-lg overflow-hidden flex flex-col justify-end pb-4">
         
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '16px 16px' }}></div>
         <div className="absolute inset-1.5 border border-[#FFD700]/20 rounded-2xl pointer-events-none"></div>
