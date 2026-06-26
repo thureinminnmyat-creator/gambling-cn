@@ -35,30 +35,34 @@ export default function GameLobby({ balance, socket, isRollingUI, displayDice, p
     { id: 'crash', name: '飞行者 (CRASH)', icon: <Rocket className="w-3.5 h-3.5" /> }
   ];
 
+  // 🚨 1. Dice ဂိမ်းများ (အားလုံးကို colSpan: 1 တူညီအောင် ညှိထားသည်) 🚨
   const diceGames = [
-    { id: 'dice-1', category: 'dice', name: '富贵骰子', nameMM: 'FUGUI DICE', image: '/images/dice.jpg', border: 'border-[#FFD700]', isReady: true, colSpan: 2, badge: <span className="absolute top-2 left-2 z-20 flex items-center gap-1 bg-gradient-to-r from-red-600 to-[#FFD700] text-white px-2 py-0.5 rounded-full text-[9px] font-black uppercase shadow-[0_0_10px_rgba(255,215,0,0.6)] animate-pulse"><Flame className="w-3 h-3 text-yellow-200"/> 热门</span> },
+    { id: 'dice-1', category: 'dice', name: '富贵骰子', nameMM: 'FUGUI DICE', image: '/images/dice.jpg', border: 'border-[#FFD700]', isReady: true, colSpan: 1, badge: <span className="absolute top-2 left-2 z-20 flex items-center gap-0.5 bg-gradient-to-r from-red-600 to-[#FFD700] text-white px-2 py-0.5 rounded-full text-[8px] font-black uppercase shadow-[0_0_8px_rgba(255,215,0,0.6)] animate-pulse"><Flame className="w-2.5 h-2.5 text-yellow-200"/> 热门</span> },
     { id: 'dice-2', category: 'dice', name: '幸运骰子', nameMM: 'LUCKY DICE', image: '/images/dice.jpg', border: 'border-orange-400', isReady: true, colSpan: 1 },
     { id: 'dice-3', category: 'dice', name: '极速骰子', nameMM: 'SPEED DICE', image: '/images/dice.jpg', border: 'border-red-500', isReady: true, colSpan: 1 }
   ];
 
+  // 🚨 2. Cards ဂိမ်းများ (အားလုံးကို colSpan: 1 တူညီအောင် ညှိထားသည်) 🚨
   const cardGames = [
-    { id: 'dt-1', category: 'cards', name: '龙虎斗', nameMM: 'DRAGON TIGER', image: '/images/dt.jpg', border: 'border-red-500', isReady: true, colSpan: 2, badge: <span className="absolute top-2 left-2 z-20 flex items-center gap-1 bg-gradient-to-r from-red-600 to-[#FFD700] text-white px-2 py-0.5 rounded-full text-[9px] font-black uppercase shadow-[0_0_10px_rgba(255,215,0,0.6)] animate-pulse"><Flame className="w-3 h-3 text-yellow-200"/> 热门</span> },
+    { id: 'dt-1', category: 'cards', name: '龙虎斗', nameMM: 'DRAGON TIGER', image: '/images/dt.jpg', border: 'border-red-500', isReady: true, colSpan: 1, badge: <span className="absolute top-2 left-2 z-20 flex items-center gap-0.5 bg-gradient-to-r from-red-600 to-[#FFD700] text-white px-2 py-0.5 rounded-full text-[8px] font-black uppercase shadow-[0_0_8px_rgba(255,215,0,0.6)] animate-pulse"><Flame className="w-2.5 h-2.5 text-yellow-200"/> 热门</span> },
     { id: 'baccarat-1', category: 'cards', name: '百家乐', nameMM: 'BACCARAT', image: '/images/baccarat.jpg', border: 'border-purple-500', isReady: true, colSpan: 1 },
     { id: 'baccarat-2', category: 'cards', name: '极速百家乐', nameMM: 'SPEED BACCARAT', image: '/images/baccarat.jpg', border: 'border-blue-500', isReady: true, colSpan: 1 },
     { id: 'dt-2', category: 'cards', name: '极速龙虎', nameMM: 'SPEED DRAGON TIGER', image: '/images/dt.jpg', border: 'border-green-500', isReady: true, colSpan: 1 },
     { id: 'baccarat-3', category: 'cards', name: '贵宾百家乐', nameMM: 'VIP BACCARAT', image: '/images/baccarat.jpg', border: 'border-[#FFD700]', isReady: true, colSpan: 1 }
   ];
 
+  // 🚨 3. Crash ဂိမ်းများ (အားလုံးကို colSpan: 1 တူညီအောင် ညှိထားသည်) 🚨
   const crashGames = [
     { id: 'crash-1', category: 'crash', name: '飞行者', nameMM: 'AVIATOR', image: '/images/crash.jpg', border: 'border-blue-500', isReady: true, colSpan: 1 },
     { id: 'crash-2', category: 'crash', name: '太空侠', nameMM: 'SPACEMAN', image: '/images/crash.jpg', border: 'border-indigo-400', isReady: true, colSpan: 1 }
   ];
 
+  // 🚨 4. Slots ဂိမ်းများ 🚨
   const slotGames = [
     { id: 'slots-1', category: 'slots', name: '经典老虎机', nameMM: 'CLASSIC SLOTS', image: '/images/slots.jpg', border: 'border-emerald-500', isReady: true, colSpan: 1 },
-    { id: 'slots-2', category: 'slots', name: '财神到', nameMM: 'GOD OF WEALTH', image: '/images/slots.jpg', border: 'border-red-500', isReady: true, colSpan: 1, badge: <span className="absolute top-2 left-2 z-20 flex items-center gap-1 bg-gradient-to-r from-red-600 to-[#FFD700] text-white px-2 py-0.5 rounded-full text-[8px] font-black uppercase shadow-[0_0_10px_rgba(255,215,0,0.6)] animate-pulse"><Flame className="w-2 h-2 text-yellow-200"/> 热门</span> },
+    { id: 'slots-2', category: 'slots', name: '财神到', nameMM: 'GOD OF WEALTH', image: '/images/slots.jpg', border: 'border-red-500', isReady: true, colSpan: 1, badge: <span className="absolute top-2 left-2 z-20 flex items-center gap-0.5 bg-gradient-to-r from-red-600 to-[#FFD700] text-white px-2 py-0.5 rounded-full text-[8px] font-black uppercase shadow-[0_0_10px_rgba(255,215,0,0.6)] animate-pulse"><Flame className="w-2.5 h-2.5 text-yellow-200"/> 热门</span> },
     { id: 'slots-3', category: 'slots', name: '熊猫财富', nameMM: 'PANDA FORTUNE', image: '/images/slots.jpg', border: 'border-green-400', isReady: true, colSpan: 1 },
-    { id: 'slots-4', category: 'slots', name: '甜蜜暴击', nameMM: 'SWEET BONANZA', image: '/images/slots.jpg', border: 'border-pink-400', isReady: true, colSpan: 1, badge: <span className="absolute top-2 left-2 z-20 flex items-center gap-1 bg-gradient-to-r from-pink-500 to-purple-500 text-white px-2 py-0.5 rounded-full text-[8px] font-black uppercase shadow-[0_0_10px_rgba(236,72,153,0.6)]">HOT</span> },
+    { id: 'slots-4', category: 'slots', name: '甜蜜暴击', nameMM: 'SWEET BONANZA', image: '/images/slots.jpg', border: 'border-pink-400', isReady: true, colSpan: 1, badge: <span className="absolute top-2 left-2 z-20 flex items-center gap-0.5 bg-gradient-to-r from-pink-500 to-purple-500 text-white px-2 py-0.5 rounded-full text-[8px] font-black uppercase shadow-[0_0_10px_rgba(236,72,153,0.6)]">HOT</span> },
     { id: 'slots-5', category: 'slots', name: '众神之王', nameMM: 'GATES OF OLYMPUS', image: '/images/slots.jpg', border: 'border-yellow-400', isReady: true, colSpan: 1 },
     { id: 'slots-6', category: 'slots', name: '麻将胡了', nameMM: 'MAHJONG WAYS', image: '/images/slots.jpg', border: 'border-red-600', isReady: true, colSpan: 1 },
     { id: 'slots-7', category: 'slots', name: '金龙发财', nameMM: 'GOLDEN DRAGON', image: '/images/slots.jpg', border: 'border-yellow-500', isReady: true, colSpan: 1 },
@@ -94,11 +98,10 @@ export default function GameLobby({ balance, socket, isRollingUI, displayDice, p
         </div>
       )}
 
-      {/* 🚨 p-2 (Padding) လျှော့ချထားပြီး Screen နှင့် Fit ဖြစ်အောင် ညှိထားပါသည် 🚨 */}
       {!activeGame ? (
         <div className="p-2 overflow-y-auto pb-24 flex flex-col space-y-3 md:space-y-4">
           
-          {/* Slider Banner (Height လျှော့ချထားသည်) */}
+          {/* Slider Banner */}
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="relative overflow-hidden rounded-2xl border border-[#FFD700]/40 shadow-lg h-32 md:h-44 bg-black group flex-shrink-0">
             {banners.map((img, index) => (
               <img key={index} src={img} alt={`Banner ${index + 1}`} className={`absolute inset-0 w-full h-full object-cover transition-all duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100 scale-100' : 'opacity-0 scale-105'}`} />
@@ -109,7 +112,7 @@ export default function GameLobby({ balance, socket, isRollingUI, displayDice, p
             </div>
           </motion.div>
 
-          {/* Category Tabs (ပိုမိုကျစ်လစ်အောင် ပြင်ဆင်ထားသည်) */}
+          {/* Category Tabs */}
           <div className="flex overflow-x-auto gap-2 pb-1 pt-1 sticky top-0 z-10" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             <style>{`div::-webkit-scrollbar { display: none; }`}</style>
             
@@ -129,7 +132,7 @@ export default function GameLobby({ balance, socket, isRollingUI, displayDice, p
             ))}
           </div>
 
-          {/* Games Grid (Gap ကို 2 သို့ လျှော့ချထားသည်) */}
+          {/* 🚨 All Cards Grid (အားလုံးကို col-span-1 aspect-[4/5] ဖြင့် ပုံသေ သတ်မှတ်လိုက်သည်) 🚨 */}
           <motion.div layout className="grid grid-cols-2 gap-2 md:gap-3">
             <AnimatePresence>
               {filteredGames.map((game) => (
@@ -143,24 +146,26 @@ export default function GameLobby({ balance, socket, isRollingUI, displayDice, p
                   onClick={() => game.isReady && setActiveGame(game.id)} 
                   className={`relative overflow-hidden rounded-2xl p-0 transition-all duration-300 group ${
                     game.isReady ? 'hover:-translate-y-1 hover:shadow-[0_10px_15px_rgba(255,215,0,0.2)] cursor-pointer' : 'opacity-70 cursor-not-allowed grayscale-[50%]'
-                  } ${game.colSpan === 2 ? 'col-span-2 aspect-[2.5/1]' : 'col-span-1 aspect-[4/5] md:aspect-square'}`}
+                  } col-span-1 aspect-[4/5]`} /* 👈 ဒီနေရာမှာ အကုန်အရွယ်အစား တူသွားပါပြီ */
                 >
-                  <img src={game.image} alt={game.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                  <div className={`absolute inset-0 bg-gradient-to-t ${game.colSpan === 2 ? 'from-black/90 via-black/40' : 'from-black/90 via-black/20'} to-transparent opacity-90`}></div>
+                  {/* object-cover object-center ကြောင့် ပုံများ ကွက်တိ လှလှပပ ဝင်ဆံ့နေမည်ဖြစ်သည် */}
+                  <img src={game.image} alt={game.name} className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-90"></div>
                   <div className={`absolute inset-0 border-[1.5px] ${game.border} rounded-2xl opacity-30 group-hover:opacity-100 transition-opacity duration-300 z-10 pointer-events-none`}></div>
                   
                   {game.badge && game.badge}
                   
-                  <div className={`absolute bottom-0 left-0 right-0 flex flex-col justify-end text-left p-2.5 md:p-3 h-full ${game.colSpan === 2 ? 'items-start w-[70%]' : 'items-center text-center'}`}>
+                  {/* စာသားများကိုလည်း အလယ်ဗဟိုတွင် စနစ်တကျ ညှိပေးထားသည် */}
+                  <div className="absolute bottom-0 left-0 right-0 flex flex-col justify-end text-center p-2.5 h-full items-center">
                     <h3 className="font-black text-white tracking-widest uppercase leading-tight drop-shadow-md text-sm md:text-base mb-0.5">{game.name}</h3>
                     <p className="text-[8px] md:text-[10px] text-white/60 font-bold mb-1.5 tracking-widest">{game.nameMM}</p>
                     
                     {game.isReady ? (
-                      <span className={`flex items-center justify-center gap-1 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-[#4A0404] py-1 rounded-full text-[8px] md:text-[9px] font-black uppercase shadow-[0_0_10px_rgba(255,215,0,0.4)] group-hover:scale-[1.05] transition-transform ${game.colSpan === 2 ? 'px-3' : 'w-full'}`}>
+                      <span className="flex items-center justify-center gap-1 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-[#4A0404] py-1 rounded-full text-[8px] md:text-[9px] font-black uppercase shadow-[0_0_10px_rgba(255,215,0,0.4)] group-hover:scale-[1.05] transition-transform w-full">
                         <PlayCircle className="w-3 h-3" /> 立即开始
                       </span>
                     ) : (
-                      <span className={`flex items-center justify-center gap-1 bg-gray-900/80 text-gray-400 border border-gray-600/50 py-1 rounded-full text-[8px] md:text-[9px] font-bold uppercase ${game.colSpan === 2 ? 'px-3' : 'w-full'}`}>
+                      <span className="flex items-center justify-center gap-1 bg-gray-900/80 text-gray-400 border border-gray-600/50 py-1 rounded-full text-[8px] md:text-[9px] font-bold uppercase w-full">
                         <Lock className="w-2.5 h-2.5" /> 即将推出
                       </span>
                     )}
